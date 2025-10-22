@@ -1,0 +1,43 @@
+
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Format Check
+        run: dotnet format --verify-no-changes
+
+      - name: Build Windows
+        run: dotnet publish src/AndroidKeystoreCreator -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+
+      - name: Build Linux
+        run: dotnet publish src/AndroidKeystoreCreator -c Release -r linux-x64 --self-contained true -p:PublishSingleFile=true
+
+      - name: Import GPG key
+        env:
+          GPG_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        run: |
+          echo "$GPG_KEY" | gpg --batch --import
+          echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --sign --detach-sig -u "$(gpg --list-keys --with-colons | grep pub | head -1 | cut -d: -f10)" src/AndroidKeystoreCreator/bin/Release/net8.0/win-x64/publish/AndroidKeystoreCreator.exe
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            src/AndroidKeystoreCreator/bin/Release/net8.0/win-x64/publish/*
+            src/AndroidKeystoreCreator/bin/Release/net8.0/linux-x64/publish/*
