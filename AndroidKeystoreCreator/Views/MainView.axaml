@@ -1,0 +1,21 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="clr-namespace:AndroidKeystoreCreator.ViewModels"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:Class="AndroidKeystoreCreator.Views.MainView"
+			 x:DataType="vm:MainViewModel">
+	<Design.DataContext>
+		<!-- This only sets the DataContext for the previewer in an IDE,
+		to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+		<vm:MainViewModel />
+	</Design.DataContext>
+
+	<StackPanel Margin="20" Spacing="10">
+		<TextBlock Text="Android Keystore Creator" FontSize="20" HorizontalAlignment="Center"/>
+		<Button Content="Generate Keystore" Command="{Binding GenerateCommand}" HorizontalAlignment="Center"/>
+		<Button Content="⚙️ Settings" Command="{Binding OpenSettingsCommand}" HorizontalAlignment="Center" IsEnabled="False"/>
+		<TextBlock Text="{Binding StatusMessage}" HorizontalAlignment="Center"/>
+	</StackPanel>
+</UserControl>
